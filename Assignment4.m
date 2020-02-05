@@ -6,9 +6,21 @@ profit = [9 14 16 30];
 weight = [ 2 3 4 6];
 maxWeight = 10;
 
+k = getProfitMatrix(profit,weight,maxWeight);
+fprintf('First profit matrix\n');
+disp(k);
+fprintf('\nSecond profit matrix\n');
+altProfit = [29 15 25 5 13 28];
+altWeight = [8 9 6 1 8 9];
+altMaxWeight = 13;
+m = getProfitMatrix(altProfit,altWeight,altMaxWeight);
+disp(m);
+
+end
+
+function k = getProfitMatrix(profit,weight,maxWeight)
 % 2D array to hold all solutions
 k = zeros(length(profit)+1,maxWeight+1);
-
 % Start at index 2 because the first row and first column need to be zeros
 for p = 2:length(profit)+1
     % w is the current small knapsack max weight
@@ -33,5 +45,3 @@ for p = 2:length(profit)+1
 end
 
 end
-
-
