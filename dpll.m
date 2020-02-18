@@ -1,6 +1,7 @@
 function dpll()
 % Requires dimacs format problem
-fileid = fullfile('C:\Users\johnathan.hall\Documents\otherGits\grad_school',...
+fileid =...
+    fullfile('C:\Users\johnathan.hall\Documents\otherGits\grad_school',...
     'random_ksat.dimacs');
 
 [satProb,numVars,~] = loadFile(fileid);
@@ -11,6 +12,7 @@ vars = NaN(1,numVars);
 
 sat = dpllMain(satProb,vars);
 
+keyboard;
 end
 
 % Parse the text file. Requires dimacs format. Returns a matrix of numbers
@@ -55,7 +57,7 @@ if(isempty(prob))
     return;
 end
 
-% Guess a variable, start with the first in the list
+% Guess a variable, start with the first in the clause
 % Check if it created any unit clauses (ones where only one more variable
 % is unassigned)
 % If a unit clause is created set the last variable and check its validity.
@@ -71,6 +73,10 @@ for clause = 1:size(prob,1)
     
     % Get the index of the first nan (unset) literal for this clause
     v = find(isnan(vars(abs(prob(clause,:)))),1,'first');
+    
+    if(isempty(v))
+        return;
+    end
     
     % Set the literal to -1 if the clause is negated and 1 if there is
     % no negation
@@ -95,9 +101,16 @@ end
 end
 
 function vars = unitPropagate(clause,vars)
-% Find vars in this clause that exist once in the clause and assign it.
-v = isnan(vars(abs(clause)));
-if(clause(v) < 0)
+% Find literal in this clause that is unset, assign it and recurse back
+% (outside this function)
+v = intersect(find(isnan(vars)),abs(clause));
+
+% If none of the literals in this clause are nan, negate one of the
+% currently assigned literals. How to ensure modifying the right variable
+% and that the following variables are nan so that they can be modified at
+% the right time.
+
+if(clause(abs(clause)==v) < 0)
     vars(v) = -1;
 else
     vars(v) = 1;
@@ -112,6 +125,17 @@ function literalEliminate()
 end
 
 function result = checkSat(prob,vars)
+% at least one variable per clause must evaluate to true. A negated
+% literal must have a value of -1 or a positive literal must have a value
+% of 1
+
+% for each clause
+% get the assignments of the literals in this clause
+% multiply clause value by literal value
+% if any are >0, set the sat of this clause to true
+% if all are <0, immediately return that sat for this clause is false
+% (must try a different assignment, so recurse back)
+
 % prob may be just one clause
 if(any(isnan(vars(prob))))
     result = false;
